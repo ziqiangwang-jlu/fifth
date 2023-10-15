@@ -1,0 +1,98 @@
+#-------------------------
+#
+#This script is used to create different concentrations of vacancies in thorium dioxide
+#By Ziqiang Wang on 07/03/2023
+#
+#-------------------------
+
+clear
+units                        metal
+dimension                        3
+boundary                     p p p
+atom_style                   full
+atom_modify                  map array
+
+read_data                   perfect_relaxed.dat
+#replicate                   5  60  5
+
+variable                    vac_ratio  equal   0.02
+region                      sphere    sphere   13.67 273.133 13.67 7.5 units box
+group                       sphere    region   sphere
+group                       O_delete  id  10112 10218 10160 10290 10116 10246 10188 10294 
+#group                       1          subtract  sphere  O_delete
+group                       U_delete      id 13885 10287 13897  
+group                       cluster    subtract   sphere   O_delete   U_delete
+group                       U         type     2
+group                       O         type     1
+group                       U_group   intersect   cluster  U
+group                       O_group   intersect   cluster  O
+variable                    U_num     equal       count(U_group)
+variable                    O_num     equal       count(O_group)
+print                       "The number of U atoms: ${U_num}"
+print                       "The number of O atoms: ${O_num}"
+
+delete_atoms                group     cluster
+
+region                      sphere_1    sphere   13.67 109.493 13.67 7.5 units box
+group                       sphere_1    region   sphere_1
+group                       O_delete_1  id  8360 8312 8418 8490 8316 8388 8494 8446 
+group                       U_delete_1  id  12085 12097 8487 
+group                       cluster_1          subtract  sphere_1  O_delete_1 U_delete_1
+group                       U_group_1   intersect   cluster_1  U
+group                       O_group_1   intersect   cluster_1  O
+variable                    U_num     equal       count(U_group_1)
+variable                    O_num     equal       count(O_group_1)
+print                       "The number of U atoms: ${U_num}"
+print                       "The number of O atoms: ${O_num}"
+delete_atoms                group     cluster_1
+
+region                      sphere_2    sphere   13.67 218.587 13.67 7.5 units box
+group                       sphere_2    region   sphere_2
+group                       O_delete_2  id  9560 9512 9618 9690 9516 9588 9694 9646 
+group                       U_delete_2  id  13285 9687 13297 
+group                       cluster_2          subtract  sphere_2  O_delete_2 U_delete_2
+group                       U_group_2   intersect   cluster_2  U
+group                       O_group_2   intersect   cluster_2  O
+variable                    U_num     equal       count(U_group_2)
+variable                    O_num     equal       count(O_group_2)
+print                       "The number of U atoms: ${U_num}"
+print                       "The number of O atoms: ${O_num}"
+delete_atoms                group     cluster_2
+
+set                         type    1      charge   -1.1104
+set                         type    2      charge    2.2208
+
+kspace_style                pppm     1.0e-05
+pair_style                  hybrid/overlay    coul/long   11.0  eam/alloy
+pair_coeff                  * * coul/long
+pair_coeff                  * * eam/alloy CeThUNpPuAmCmO.eam.alloy O U
+neighbor                    2.0  bin
+neigh_modify                every  1  delay  0  check  yes
+
+# Fully relaxing the defect crystal at 0K
+variable                    latt     equal   (lx/5+ly/60+lz/5)/3
+thermo                      50000
+thermo_style                custom step pe ke v_latt
+fix                         box_relax  all  box/relax  aniso  0.0  vmax  0.001
+min_style                   cg
+minimize                    1.0e-30 1.0e-30 10000 10000
+#write_data                  perfect_relaxed.dat
+unfix                       box_relax
+reset_timestep              0
+
+# apply the temperature into the system and relaxing at the temperature of interest
+reset_atom_ids
+variable                    temp      equal    600
+velocity                    all  create   ${temp}  4542  dist  gaussian  rot  yes  mom  yes
+fix                         npt  all  npt  temp  ${temp}  ${temp}  $(100*dt) aniso  0.0  0.0  $(1000*dt)
+
+thermo                      50000
+thermo_style                custom   step dt time atoms temp pe ke press vol
+
+shell                       mkdir vac_${vac_ratio}_${temp}K
+dump                        1  all  custom  50000  ./vac_${vac_ratio}_${temp}K/dump_relax.atom.* id type q x y z
+dump_modify                 1  element  O  U
+
+run                         100000
+shell                       mkdir thermal_condu
+write_data                  thermal_condu/vac_${vac_ratio}_relaxed.dat

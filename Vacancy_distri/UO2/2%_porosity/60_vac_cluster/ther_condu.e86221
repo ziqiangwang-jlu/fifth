@@ -1,0 +1,5 @@
+tee: log.206492: Stale file handle
+
+Can't find file /public/home/zqw/.vnc/nmsc-control:92.pid
+You'll have to kill the Xvnc process manually
+

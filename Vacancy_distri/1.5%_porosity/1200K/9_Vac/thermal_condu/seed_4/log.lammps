@@ -1,0 +1,198 @@
+LAMMPS (29 Oct 2020)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:94)
+  using 1 OpenMP thread(s) per MPI task
+#---------------------------------------
+#
+# This script is used to calculate the thermal conuctivity of UO2 using Muller-Plathe method
+# By Ziqiang Wang on 03/18/2022 on Jilin university
+#
+#---------------------------------------
+
+variable     Nevery    equal   50
+variable     T         equal   1200
+
+clear
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:94)
+  using 1 OpenMP thread(s) per MPI task
+units          metal
+boundary       p p p
+atom_style     full
+
+read_data vac_0.015_relaxed.dat
+Reading data file ...
+  orthogonal box = (-0.45035253 -5.1850093 -0.44240925) to (27.790353 333.26501 27.782409)
+  2 by 13 by 2 MPI processor grid
+  reading atoms ...
+  17730 atoms
+  reading velocities ...
+  17730 velocities
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0.0      0.0      0.0     
+  special bond factors coul:  0.0      0.0      0.0     
+     0 = max # of 1-2 neighbors
+     0 = max # of 1-3 neighbors
+     0 = max # of 1-4 neighbors
+     1 = max # of special neighbors
+  special bonds CPU = 0.004 seconds
+  read_data CPU = 0.057 seconds
+
+set           type     1    charge     -1.1104
+Setting atom values ...
+  11820 settings made for charge
+set           type     2    charge      2.2208
+Setting atom values ...
+  5910 settings made for charge
+
+kspace_style    pppm   1.0e-05
+pair_style      hybrid/overlay  coul/long  11.0  eam/alloy
+pair_coeff      * * coul/long
+pair_coeff      * * eam/alloy CeThUNpPuAmCmO.eam.alloy O Th
+newton          on
+neighbor        0.3 bin
+neigh_modify    delay 0 check yes every 1
+
+#The first equilation
+velocity        all create $T 10004 mom yes rot yes dist gaussian
+velocity        all create 1200 10004 mom yes rot yes dist gaussian
+fix             nvt  all  nvt  temp  $T $T  0.1
+fix             nvt  all  nvt  temp  1200 $T  0.1
+fix             nvt  all  nvt  temp  1200 1200  0.1
+
+run             50000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:328)
+  G vector (1/distance) = 0.29850654
+  grid = 40 240 40
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00015908575
+  estimated relative force accuracy = 1.1047894e-05
+  using single precision MKL FFT
+  3d grid and FFT values/proc = 15000 7600
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 11.3
+  ghost atom cutoff = 11.3
+  binsize = 5.65, bins = 5 60 5
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+  (2) pair eam/alloy, perpetual, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 8.148 | 8.169 | 8.183 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0         1200   -230036.76            0   -227286.78    1369.2668 
+   50000    1201.8554   -230027.46            0   -227273.22    817.65902 
+Loop time of 325.866 on 52 procs for 50000 steps with 17730 atoms
+
+Performance: 13.257 ns/day, 1.810 hours/ns, 153.437 timesteps/s
+99.8% CPU use with 52 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 216.56     | 221.71     | 227.96     |  18.5 | 68.04
+Bond    | 0.0032392  | 0.0049966  | 0.0071549  |   1.3 |  0.00
+Kspace  | 63.822     | 71.135     | 77.222     |  40.0 | 21.83
+Neigh   | 21.647     | 22.963     | 24.71      |  16.6 |  7.05
+Comm    | 7.3873     | 7.8903     | 8.9548     |  12.9 |  2.42
+Output  | 5.2572e-05 | 5.7363e-05 | 0.00024648 |   0.0 |  0.00
+Modify  | 0.93551    | 1.4818     | 2.4218     |  41.2 |  0.45
+Other   |            | 0.6797     |            |       |  0.21
+
+Nlocal:        340.962 ave         364 max         313 min
+Histogram: 2 2 2 5 7 14 4 10 4 2
+Nghost:        3978.52 ave        4117 max        3883 min
+Histogram: 2 3 9 14 9 10 1 1 0 3
+Neighs:        67808.7 ave       73010 max       61830 min
+Histogram: 2 3 3 5 9 10 6 6 6 2
+
+Total # of neighbors = 3526054
+Ave neighs/atom = 198.87501
+Ave special neighs/atom = 0.0000000
+Neighbor list builds = 10959
+Dangerous builds = 0
+unfix           nvt
+reset_timestep  0
+
+# the second run
+fix             1 all nve
+
+group           oxygen type 1
+11820 atoms in group oxygen
+fix             2 oxygen thermal/conductivity ${Nevery} y 20
+fix             2 oxygen thermal/conductivity 50 y 20
+
+compute         ke all ke/atom
+variable        temp atom c_ke/1.5
+compute         layers all chunk/atom bin/1d y lower 0.05 units reduced
+fix             3      all ave/chunk  2000 50 100000 layers v_temp file profile_${T}K.mp
+fix             3      all ave/chunk  2000 50 100000 layers v_temp file profile_1200K.mp
+
+variable        Tdiff    equal     f_3[11][3]-f_3[1][3]
+variable        deltaT   equal     v_Tdiff*1.5/0.0001292
+
+timestep        0.001
+thermo_style    custom step f_2 temp v_Tdiff v_deltaT
+thermo          100000
+
+run             1000000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:328)
+  G vector (1/distance) = 0.29850654
+  grid = 40 240 40
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00015908575
+  estimated relative force accuracy = 1.1047894e-05
+  using single precision MKL FFT
+  3d grid and FFT values/proc = 15000 7600
+Per MPI rank memory allocation (min/avg/max) = 8.398 | 8.419 | 8.434 Mbytes
+Step f_2 Temp v_Tdiff v_deltaT 
+       0            0    1201.8554            0            0 
+  100000    1287.1656    1201.0115  0.051127737    593.58828 
+  200000    2502.7276    1205.9403   0.05888233    683.61838 
+  300000    3717.8448    1210.3888  0.059097092    686.11174 
+  400000    4939.7137    1205.7454  0.059924864    695.72211 
+  500000    6147.4293    1203.4133  0.061867433    718.27515 
+  600000    7358.4148    1215.3477  0.060593118    703.48048 
+  700000    8569.3695    1210.9246  0.059411368    689.76046 
+  800000    9773.0191    1198.3342  0.062008916    719.91775 
+  900000    10986.729    1224.6099   0.06166303    715.90205 
+ 1000000    12197.873    1207.2771  0.059916894    695.62958 
+Loop time of 6511.26 on 52 procs for 1000000 steps with 17730 atoms
+
+Performance: 13.269 ns/day, 1.809 hours/ns, 153.580 timesteps/s
+99.8% CPU use with 52 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 4253.6     | 4372.4     | 4522.6     |  97.4 | 67.15
+Bond    | 0.06817    | 0.10129    | 0.14158    |   5.4 |  0.00
+Kspace  | 1268.5     | 1442.7     | 1592.1     | 185.9 | 22.16
+Neigh   | 465.71     | 499.6      | 536.74     |  68.2 |  7.67
+Comm    | 150        | 160.95     | 189.5      |  73.6 |  2.47
+Output  | 0.0010723  | 0.0011297  | 0.0022121  |   0.5 |  0.00
+Modify  | 5.3119     | 5.7575     | 6.3049     |  10.4 |  0.09
+Other   |            | 29.73      |            |       |  0.46
+
+Nlocal:        340.962 ave         364 max         318 min
+Histogram: 2 2 2 11 9 11 8 2 2 3
+Nghost:        3976.04 ave        4090 max        3886 min
+Histogram: 3 7 2 10 10 7 6 2 3 2
+Neighs:        67790.6 ave       72813 max       61682 min
+Histogram: 2 1 3 5 9 13 7 4 5 3
+
+Total # of neighbors = 3525111
+Ave neighs/atom = 198.82183
+Ave special neighs/atom = 0.0000000
+Neighbor list builds = 237860
+Dangerous builds = 0
+
+Total wall time: 1:53:57

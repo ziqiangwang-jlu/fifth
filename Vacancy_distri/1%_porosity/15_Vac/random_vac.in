@@ -1,0 +1,69 @@
+#-------------------------
+#
+#This script is used to create different concentrations of vacancies in thorium dioxide
+#By Ziqiang Wang on 07/03/2023
+#
+#-------------------------
+
+clear
+units                        metal
+dimension                        3
+boundary                     p p p
+atom_style                   full
+atom_modify                  map array
+
+read_data                   perfect_relaxed.dat
+
+# randomly create vacancies in the relaxed perfect crystal
+variable                   vac_ratio    equal  0.01
+group                      Th_delete   id  4011  3962  4012  7612  7561 17690  3292  3289  3280 17739 13947 13948 &
+                                           13958 17557 13898 13286 13275 16876 16873 16875  5452  5451  5450  9052 &
+                                           5511   385   388 14787 14786 14847 15448 15446 15447 15445 11846  2008 &
+                                           16467  2065 16406 16465 10011 10012 10010 13612 10071 15543 15494 15484 &
+                                           15493 15495  4706  4767  4708  4777  4778 17210 17259  2800  2869 17270
+
+group                       O_delete    id  3955  3956  4017  4018   414   416  4014  4016  3960  7559 17685 17686 &
+                                           17694 17696 17628 17636 17682 17684 17683 17687 13891 13892 10350 10352 &
+                                           13953 13954 13896 13904 13893 13894 13281 13282 13219 13220 13278 13280 &
+                                           13212 13270 16819 16820  1854  1856  5395  5396  5445  5446  5454  5456 &
+                                           5455  5459 14724 14732 14790 14792 14731 14735 14781 14782 14791 14795  &
+                                           11850 11852 15441 15442 15391 15392 11784 11792 11841 11842 16410 16412 &
+                                           16411 16415 16404 16462 16401 16402 12804 12812  9955  9956  6414  6416 &
+                                           10005 10006 10014 10016 10015 10019 15487 15488 15489 15490 11886 11888 &
+                                           11832 11840 15439 15440  4701  4702  4711  4712  1110  1112  1116  1124 &
+                                           4773  4774 17205 17206 17203 17204 17202 17208 17216 17266 17265 17267
+
+group                       delete      union   Th_delete  O_delete
+delete_atoms                group       delete
+
+set                         type    1      charge   -1.1104
+set                         type    2      charge    2.2208
+kspace_style                pppm     1.0e-05
+pair_style                  hybrid/overlay    coul/long   11.0  eam/alloy
+pair_coeff                  * * coul/long
+pair_coeff                  * * eam/alloy CeThUNpPuAmCmO.eam.alloy O Th
+neighbor                    2.0  bin
+neigh_modify                every  1  delay  0  check  yes
+
+# fully relaxing the defect configuration at 0K
+fix                box_relax  all  box/relax aniso 0.0 vmax 0.001
+min_style          cg
+minimize           1.0e-30 1.0e-30 10000 10000 
+unfix              box_relax
+
+# apply the temperature into the system and relaxing at the temperature of interest
+reset_atom_ids
+variable                    temp      equal    600
+velocity                    all  create   ${temp}  4542  dist  gaussian  rot  yes  mom  yes
+fix                         npt  all  npt  temp  ${temp}  ${temp}  $(100*dt) aniso  0.0  0.0  $(1000*dt)
+
+thermo                      20000
+thermo_style                custom   step dt time atoms temp pe ke press vol
+
+shell                       mkdir vac_${vac_ratio}_${temp}K
+dump                        1  all  custom  20000  ./vac_${vac_ratio}_${temp}K/dump_relax.atom.* id type q x y z
+dump_modify                 1  element  O  Th
+
+run                         100000
+shell                       mkdir thermal_condu
+write_data                  thermal_condu/vac_${vac_ratio}_relaxed.dat

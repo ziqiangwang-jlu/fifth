@@ -1,0 +1,137 @@
+#-------------------------
+#
+#This script is used to create different concentrations of vacancies in thorium dioxide
+#By Ziqiang Wang on 07/03/2023
+#
+#-------------------------
+
+clear
+units                        metal
+dimension                        3
+boundary                     p p p
+atom_style                   full
+atom_modify                  map array
+
+read_data                   perfect_relaxed.dat
+
+# randomly create vacancies in the relaxed perfect crystal
+variable         vac_ratio       equal    0.02
+region           sphere    sphere     13.67 52.3819 13.67 7.0  units box
+group            sphere     region  sphere
+group            oxygen     id 7890 7846 7788 7894 
+group            thorium    id 11365 11356 11416 11485 7815 11377 7767 7840 11380 11440 11497 7887 7839 
+group            1          subtract sphere thorium
+group            cluster          union    1 oxygen
+group            Th       type     2
+group            O        type     1
+group            Th_group   intersect  cluster   Th
+group            O_group    intersect  cluster   O
+delete_atoms     group      cluster
+region           sphere     delete
+group            sphere     delete
+group            oxygen     delete
+group            thorium    delete
+group            1          delete
+group            cluster    delete
+group            Th         delete
+group            O          delete
+group            Th_group   delete
+group            O_group    delete
+
+region           sphere    sphere     13.67 119.377 13.67 7.0  units box
+group            sphere     region  sphere
+group            oxygen     id 8610 8566 8508 8614 
+group            thorium    id 12085 12076 12205 12136 8607 8535 8560 12097 12100 12217 12160 8487 8559 
+group            1          subtract sphere thorium
+group            cluster          union    1 oxygen
+group            Th       type     2
+group            O        type     1
+group            Th_group   intersect  cluster   Th
+group            O_group    intersect  cluster   O
+delete_atoms     group      cluster
+region           sphere     delete
+group            sphere     delete
+group            oxygen     delete
+group            thorium    delete
+group            1          delete
+group            cluster    delete
+group            Th         delete
+group            O          delete
+group            Th_group   delete
+group            O_group    delete
+
+region           sphere    sphere     13.67 214.286 13.67 7.0  units box
+group            sphere     region  sphere
+group            oxygen     id 9630 9586 9528 9634 
+group            thorium    id 13105 13096 13156 13225 9555 9627 9507 9580 13117 13120 13180 13237 9579 
+group            1          subtract sphere thorium
+group            cluster          union    1 oxygen
+group            Th       type     2
+group            O        type     1
+group            Th_group   intersect  cluster   Th
+group            O_group    intersect  cluster   O
+delete_atoms     group      cluster
+region           sphere     delete
+group            sphere     delete
+group            oxygen     delete
+group            thorium    delete
+group            1          delete
+group            cluster    delete
+group            Th         delete
+group            O          delete
+group            Th_group   delete
+group            O_group    delete
+
+region           sphere    sphere     13.67 275.698 13.67 7.0  units box
+group            sphere     region  sphere
+group            oxygen     id 10290 10246 10188 10294 
+group            thorium    id 13765 13756 13816 10167 10215 13885 10240 13777 13780 13840 10239 13897 10287 
+group            1          subtract sphere thorium
+group            cluster          union    1 oxygen
+group            Th       type     2
+group            O        type     1
+group            Th_group   intersect  cluster   Th
+group            O_group    intersect  cluster   O
+delete_atoms     group      cluster
+region           sphere     delete
+group            sphere     delete
+group            oxygen     delete
+group            thorium    delete
+group            1          delete
+group            cluster    delete
+group            Th         delete
+group            O          delete
+group            Th_group   delete
+group            O_group    delete
+
+set                         type    1      charge   -1.1104
+set                         type    2      charge    2.2208
+kspace_style                pppm     1.0e-05
+pair_style                  hybrid/overlay    coul/long   11.0  eam/alloy
+pair_coeff                  * * coul/long
+pair_coeff                  * * eam/alloy CeThUNpPuAmCmO.eam.alloy O Th
+neighbor                    2.0  bin
+neigh_modify                every  1  delay  0  check  yes
+
+# fully relaxing the defect configuration at 0K
+fix                box_relax  all  box/relax aniso 0.0 vmax 0.001
+min_style          cg
+minimize           1.0e-30 1.0e-30 10000 10000 
+unfix              box_relax
+
+# apply the temperature into the system and relaxing at the temperature of interest
+reset_atom_ids
+variable                    temp      equal    900
+velocity                    all  create   ${temp}  4542  dist  gaussian  rot  yes  mom  yes
+fix                         npt  all  npt  temp  ${temp}  ${temp}  $(100*dt) aniso  0.0  0.0  $(1000*dt)
+
+thermo                      20000
+thermo_style                custom   step dt time atoms temp pe ke press vol
+
+shell                       mkdir vac_${vac_ratio}_${temp}K
+dump                        1  all  custom  20000  ./vac_${vac_ratio}_${temp}K/dump_relax.atom.* id type q x y z
+dump_modify                 1  element  O  Th
+
+run                         100000
+shell                       mkdir thermal_condu
+write_data                  thermal_condu/vac_${vac_ratio}_relaxed.dat

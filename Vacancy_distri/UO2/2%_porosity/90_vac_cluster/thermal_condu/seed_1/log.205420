@@ -1,0 +1,145 @@
+LAMMPS (29 Oct 2020)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:94)
+  using 1 OpenMP thread(s) per MPI task
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:94)
+  using 1 OpenMP thread(s) per MPI task
+Reading data file ...
+  orthogonal box = (-0.041200316 -0.54565071 -0.049966151) to (27.381200 328.62565 27.389966)
+  2 by 13 by 2 MPI processor grid
+  reading atoms ...
+  17640 atoms
+  reading velocities ...
+  17640 velocities
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0.0      0.0      0.0     
+  special bond factors coul:  0.0      0.0      0.0     
+     0 = max # of 1-2 neighbors
+     0 = max # of 1-3 neighbors
+     0 = max # of 1-4 neighbors
+     1 = max # of special neighbors
+  special bonds CPU = 0.004 seconds
+  read_data CPU = 0.075 seconds
+Setting atom values ...
+  11760 settings made for charge
+Setting atom values ...
+  5880 settings made for charge
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:328)
+  G vector (1/distance) = 0.30004321
+  grid = 40 240 40
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00014652234
+  estimated relative force accuracy = 1.0175413e-05
+  using single precision MKL FFT
+  3d grid and FFT values/proc = 15000 7600
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 11.3
+  ghost atom cutoff = 11.3
+  binsize = 5.65, bins = 5 59 5
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+  (2) pair eam/alloy, perpetual, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Setting up Verlet run ...
+  Unit style    : metal
+  Current step  : 0
+  Time step     : 0.001
+Per MPI rank memory allocation (min/avg/max) = 8.162 | 8.190 | 8.215 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0          600    -237519.4            0   -236151.39   -408.50901 
+  100000    603.12268   -237498.25            0   -236123.12   -136.57701 
+Loop time of 641.078 on 52 procs for 100000 steps with 17640 atoms
+
+Performance: 13.477 ns/day, 1.781 hours/ns, 155.987 timesteps/s
+99.8% CPU use with 52 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 418.14     | 434.28     | 456.5      |  40.6 | 67.74
+Bond    | 0.0064224  | 0.0098895  | 0.014935   |   2.0 |  0.00
+Kspace  | 128.46     | 151.62     | 168.31     |  70.7 | 23.65
+Neigh   | 31.171     | 34.961     | 37.244     |  23.5 |  5.45
+Comm    | 14.208     | 15.454     | 18.143     |  27.4 |  2.41
+Output  | 5.3531e-05 | 5.9138e-05 | 0.00026513 |   0.0 |  0.00
+Modify  | 1.9816     | 3.465      | 5.6552     |  68.2 |  0.54
+Other   |            | 1.29       |            |       |  0.20
+
+Nlocal:        339.231 ave         365 max         312 min
+Histogram: 2 1 2 4 12 21 6 0 1 3
+Nghost:        4236.88 ave        4354 max        4136 min
+Histogram: 4 7 7 10 4 0 5 7 1 7
+Neighs:        71833.2 ave       78269 max       61028 min
+Histogram: 1 1 0 6 2 6 22 8 2 4
+
+Total # of neighbors = 3735327
+Ave neighs/atom = 211.75323
+Ave special neighs/atom = 0.0000000
+Neighbor list builds = 16194
+Dangerous builds = 0
+11760 atoms in group oxygen
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:328)
+  G vector (1/distance) = 0.30004321
+  grid = 40 240 40
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00014652234
+  estimated relative force accuracy = 1.0175413e-05
+  using single precision MKL FFT
+  3d grid and FFT values/proc = 15000 7600
+Setting up Verlet run ...
+  Unit style    : metal
+  Current step  : 0
+  Time step     : 0.001
+Per MPI rank memory allocation (min/avg/max) = 8.413 | 8.440 | 8.465 Mbytes
+Step f_2 Temp v_Tdiff v_deltaT 
+       0            0    603.12268            0            0 
+  100000    702.04912    600.81655  0.018840991    218.74215 
+  200000    1373.9188    602.39935  0.021368544    248.08681 
+  300000    2050.7812    601.78783  0.021154404    245.60067 
+  400000    2724.8641    599.93931  0.020688872    240.19588 
+  500000     3400.773     605.9664  0.021270789    246.95188 
+  600000    4076.4817    602.34058  0.021823686    253.37097 
+  700000    4757.0012    603.15099  0.020623539    239.43738 
+  800000    5428.2782    600.14132  0.021073623    244.66281 
+  900000    6107.9971     605.1487  0.020837601    241.92261 
+ 1000000    6789.0932     605.2232  0.021020716    244.04856 
+Loop time of 6458.07 on 52 procs for 1000000 steps with 17640 atoms
+
+Performance: 13.379 ns/day, 1.794 hours/ns, 154.845 timesteps/s
+99.8% CPU use with 52 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 4203.5     | 4370.6     | 4574.6     | 127.9 | 67.68
+Bond    | 0.063816   | 0.099696   | 0.17107    |   7.1 |  0.00
+Kspace  | 1312.5     | 1531.9     | 1710.9     | 227.2 | 23.72
+Neigh   | 322.53     | 359.72     | 387.49     |  87.1 |  5.57
+Comm    | 142.6      | 156.09     | 187.81     |  93.0 |  2.42
+Output  | 0.0010811  | 0.0011515  | 0.0023134  |   0.5 |  0.00
+Modify  | 5.4916     | 5.9618     | 6.736      |  11.6 |  0.09
+Other   |            | 33.66      |            |       |  0.52
+
+Nlocal:        339.231 ave         368 max         315 min
+Histogram: 1 4 5 9 14 8 6 1 2 2
+Nghost:        4237.06 ave        4349 max        4140 min
+Histogram: 5 10 3 9 4 1 3 9 3 5
+Neighs:        71831.5 ave       79184 max       62733 min
+Histogram: 2 4 2 3 5 12 13 6 4 1
+
+Total # of neighbors = 3735239
+Ave neighs/atom = 211.74824
+Ave special neighs/atom = 0.0000000
+Neighbor list builds = 166517
+Dangerous builds = 0
+Total wall time: 1:58:19

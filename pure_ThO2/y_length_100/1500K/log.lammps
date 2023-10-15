@@ -1,0 +1,329 @@
+LAMMPS (29 Oct 2020)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:94)
+  using 1 OpenMP thread(s) per MPI task
+#-------------------------
+#
+#This script is used to create different concentrations of vacancies in thorium dioxide
+#By Ziqiang Wang on 07/03/2023
+#
+#-------------------------
+
+clear
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:94)
+  using 1 OpenMP thread(s) per MPI task
+units                        metal
+dimension                        3
+boundary                     p p p
+atom_style                   full
+atom_modify                  map array
+
+read_data                   ThO2_unitcell.dat
+Reading data file ...
+  orthogonal box = (0.0000000 0.0000000 0.0000000) to (5.4680000 5.4680000 5.4680000)
+  2 by 2 by 13 MPI processor grid
+  reading atoms ...
+  12 atoms
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0.0      0.0      0.0     
+  special bond factors coul:  0.0      0.0      0.0     
+     0 = max # of 1-2 neighbors
+     0 = max # of 1-3 neighbors
+     0 = max # of 1-4 neighbors
+     1 = max # of special neighbors
+  special bonds CPU = 0.003 seconds
+  read_data CPU = 0.032 seconds
+replicate                   5  100  5
+Replicating atoms ...
+  orthogonal box = (0.0000000 0.0000000 0.0000000) to (27.340000 546.80000 27.340000)
+  1 by 26 by 2 MPI processor grid
+  30000 atoms
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0.0      0.0      0.0     
+  special bond factors coul:  0.0      0.0      0.0     
+     0 = max # of 1-2 neighbors
+     0 = max # of 1-3 neighbors
+     0 = max # of 1-4 neighbors
+     1 = max # of special neighbors
+  special bonds CPU = 0.002 seconds
+  replicate CPU = 0.009 seconds
+
+set                         type    1      charge   -1.1104
+Setting atom values ...
+  20000 settings made for charge
+set                         type    2      charge    2.2208
+Setting atom values ...
+  10000 settings made for charge
+
+kspace_style                pppm     1.0e-05
+pair_style                  hybrid/overlay    coul/long   11.0  eam/alloy
+pair_coeff                  * * coul/long
+pair_coeff                  * * eam/alloy CeThUNpPuAmCmO.eam.alloy O Th Th O
+neighbor                    2.0  bin
+neigh_modify                every  1  delay  0  check  yes
+
+# Fully relaxing the perfect crystal at 0K
+fix                         box_relax  all  box/relax  aniso  0.0  vmax  0.001
+min_style                   cg
+minimize                    1.0e-30 1.0e-30 10000 10000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:328)
+  G vector (1/distance) = 0.2983543
+  grid = 40 360 40
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.0001712081
+  estimated relative force accuracy = 1.1889744e-05
+  using single precision MKL FFT
+  3d grid and FFT values/proc = 26649 11200
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 13
+  ghost atom cutoff = 13
+  binsize = 6.5, bins = 5 85 5
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+  (2) pair eam/alloy, perpetual, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 10.82 | 11.15 | 11.64 Mbytes
+Step Temp E_pair E_mol TotEng Press Volume 
+       0            0   -393879.72            0   -393879.72    136342.09    408719.66 
+      24            0   -394908.08            0   -394908.08 -0.044386035    434377.51 
+Loop time of 1.21333 on 52 procs for 24 steps with 30000 atoms
+
+98.8% CPU use with 52 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = linesearch alpha is zero
+  Energy initial, next-to-last, final = 
+     -393879.715248426  -394908.081816402  -394908.081816402
+  Force two-norm initial, final = 60242.888 0.11787713
+  Force max component initial, final = 34792.536 0.011958295
+  Final line search alpha, max atom move = 6.3800021e-07 7.6293945e-09
+  Iterations, force evaluations = 24 61
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.65841    | 0.67869    | 0.70781    |   1.4 | 55.94
+Bond    | 6.3144e-06 | 1.2513e-05 | 2.2429e-05 |   0.0 |  0.00
+Kspace  | 0.22355    | 0.25569    | 0.28061    |   2.6 | 21.07
+Neigh   | 0.046405   | 0.053671   | 0.059368   |   1.4 |  4.42
+Comm    | 0.024424   | 0.025867   | 0.027092   |   0.5 |  2.13
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.1994     |            |       | 16.43
+
+Nlocal:        576.923 ave         606 max         540 min
+Histogram: 1 14 0 2 0 14 0 1 2 18
+Nghost:        6807.15 ave        7086 max        6755 min
+Histogram: 31 17 0 0 0 0 0 0 0 4
+Neighs:       186154.0 ave      197475 max      174106 min
+Histogram: 2 12 1 4 7 4 1 9 7 5
+
+Total # of neighbors = 9680000
+Ave neighs/atom = 322.66667
+Ave special neighs/atom = 0.0000000
+Neighbor list builds = 10
+Dangerous builds = 0
+unfix                       box_relax
+reset_timestep              0
+# randomly create vacancies in the relaxed perfect crystal
+group                       thorium     type  2
+10000 atoms in group thorium
+group                       oxygen      type  1
+20000 atoms in group oxygen
+
+variable           vac_ratio   equal    0
+variable           tot         equal    count(all)
+variable           tot_vac     equal    round(${tot}*${vac_ratio})
+variable           tot_vac     equal    round(30000*${vac_ratio})
+variable           tot_vac     equal    round(30000*0)
+variable           th_vac      equal    round(${tot_vac}*0.333333)
+variable           th_vac      equal    round(0*0.333333)
+variable           oxy_vac     equal    2*${th_vac}
+variable           oxy_vac     equal    2*0
+set                group    thorium   type/subset  3   ${th_vac}  1252
+set                group    thorium   type/subset  3   0  1252
+Setting atom values ...
+  0 settings made for type/subset
+set                group    oxygen    type/subset  4   ${oxy_vac} 45558
+set                group    oxygen    type/subset  4   0 45558
+Setting atom values ...
+  0 settings made for type/subset
+
+group              delete     type    3 4
+0 atoms in group delete
+delete_atoms       group      delete
+WARNING: Ignoring 'compress yes' for molecular system (../delete_atoms.cpp:125)
+Deleted 0 atoms, new total = 30000
+
+# fully relaxing the defect configuration at 0K
+fix                box_relax  all  box/relax aniso 0.0 vmax 0.001
+min_style          cg
+minimize           1.0e-30 1.0e-30 10000 10000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:328)
+  G vector (1/distance) = 0.2981444
+  grid = 40 375 40
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00016836537
+  estimated relative force accuracy = 1.1692328e-05
+  using single precision MKL FFT
+  3d grid and FFT values/proc = 26649 12000
+Per MPI rank memory allocation (min/avg/max) = 10.84 | 11.52 | 11.71 Mbytes
+Step Temp E_pair E_mol TotEng Press Volume 
+       0            0    -394909.9            0    -394909.9    34.796878    434377.51 
+       2            0   -394909.91            0   -394909.91   -27.123945    434391.46 
+Loop time of 0.779319 on 52 procs for 2 steps with 30000 atoms
+
+99.7% CPU use with 52 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = linesearch alpha is zero
+  Energy initial, next-to-last, final = 
+     -394909.901844749  -394909.905548166  -394909.905548166
+  Force two-norm initial, final = 32.332899 14.744408
+  Force max component initial, final = 32.214331 10.385864
+  Final line search alpha, max atom move = 4.4174530e-11 4.5879066e-10
+  Iterations, force evaluations = 2 44
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.4385     | 0.46559    | 0.48932    |   1.7 | 59.74
+Bond    | 4.8119e-06 | 9.7519e-06 | 3.6077e-05 |   0.0 |  0.00
+Kspace  | 0.13595    | 0.15952    | 0.1866     |   2.8 | 20.47
+Neigh   | 0          | 0          | 0          |   0.0 |  0.00
+Comm    | 0.012791   | 0.013298   | 0.013871   |   0.2 |  1.71
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 0.1409     |            |       | 18.08
+
+Nlocal:        576.923 ave         640 max         510 min
+Histogram: 5 2 3 6 10 7 7 2 3 7
+Nghost:        6807.15 ave        7111 max        6721 min
+Histogram: 12 21 10 5 0 0 0 0 2 2
+Neighs:       186154.0 ave      208952 max      162584 min
+Histogram: 5 3 2 6 9 10 6 3 3 5
+
+Total # of neighbors = 9680000
+Ave neighs/atom = 322.66667
+Ave special neighs/atom = 0.0000000
+Neighbor list builds = 0
+Dangerous builds = 0
+unfix              box_relax
+reset_timestep     0
+
+# apply the temperature into the system and relaxing system at the temperature of interest
+reset_atom_ids
+Resetting atom IDs ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:328)
+  G vector (1/distance) = 0.29814372
+  grid = 40 375 40
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00016837148
+  estimated relative force accuracy = 1.1692752e-05
+  using single precision MKL FFT
+  3d grid and FFT values/proc = 26649 12000
+Finding 1-2 1-3 1-4 neighbors ...
+  special bond factors lj:    0.0      0.0      0.0     
+  special bond factors coul:  0.0      0.0      0.0     
+     0 = max # of 1-2 neighbors
+     0 = max # of 1-3 neighbors
+     0 = max # of 1-4 neighbors
+     1 = max # of special neighbors
+  special bonds CPU = 0.002 seconds
+variable                    temp      equal    1500
+velocity                    all  create   ${temp}  47788  dist  gaussian  rot  yes  mom  yes
+velocity                    all  create   1500  47788  dist  gaussian  rot  yes  mom  yes
+fix                         npt  all  npt  temp  ${temp}  ${temp}  $(100*dt) aniso  0.0  0.0  $(1000*dt)
+fix                         npt  all  npt  temp  1500  ${temp}  $(100*dt) aniso  0.0  0.0  $(1000*dt)
+fix                         npt  all  npt  temp  1500  1500  $(100*dt) aniso  0.0  0.0  $(1000*dt)
+fix                         npt  all  npt  temp  1500  1500  0.10000000000000000555 aniso  0.0  0.0  $(1000*dt)
+fix                         npt  all  npt  temp  1500  1500  0.10000000000000000555 aniso  0.0  0.0  1
+
+thermo                      10000
+thermo_style                custom   step dt time atoms temp pe ke press vol
+
+shell                       mkdir vac_${vac_ratio}_${temp}K
+shell                       mkdir vac_0_${temp}K
+shell                       mkdir vac_0_1500K
+dump                        1  all  custom  10000  ./vac_${vac_ratio}_${temp}K/dump_relax.atom.* id type q x y z
+dump                        1  all  custom  10000  ./vac_0_${temp}K/dump_relax.atom.* id type q x y z
+dump                        1  all  custom  10000  ./vac_0_1500K/dump_relax.atom.* id type q x y z
+dump_modify                 1  element  O  Th Th O
+
+run                         100000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:328)
+  G vector (1/distance) = 0.29814372
+  grid = 40 375 40
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00016837148
+  estimated relative force accuracy = 1.1692752e-05
+  using single precision MKL FFT
+  3d grid and FFT values/proc = 26649 12000
+Per MPI rank memory allocation (min/avg/max) = 11.00 | 11.68 | 11.86 Mbytes
+Step Dt Time Atoms Temp PotEng KinEng Press Volume 
+       0        0.001            0    30000         1500   -394909.91    5816.5126    14274.998    434391.46 
+   10000        0.001           10    30000    1503.8788   -388549.94    5831.5534   -1371.6142    454176.37 
+   20000        0.001           20    30000     1501.933   -388588.03    5824.0084    558.70919    453565.43 
+   30000        0.001           30    30000    1502.0862   -388625.54    5824.6024   -298.01337    453764.49 
+   40000        0.001           40    30000    1503.4953   -388570.99    5830.0663    139.09933     453780.7 
+   50000        0.001           50    30000    1494.7647   -388600.06    5796.2118     191.8176    453742.75 
+   60000        0.001           60    30000    1498.0212   -388597.91    5808.8395   -377.43951    453847.57 
+   70000        0.001           70    30000    1504.5566   -388569.39    5834.1815   -56.187465    453765.27 
+   80000        0.001           80    30000    1505.2176   -388568.32    5836.7449    1286.9737     453571.5 
+   90000        0.001           90    30000    1489.6642   -388587.97    5776.4336    1233.5936    453461.95 
+  100000        0.001          100    30000    1494.5994   -388577.83    5795.5709   -871.67134    454049.92 
+Loop time of 1404.29 on 52 procs for 100000 steps with 30000 atoms
+
+Performance: 6.153 ns/day, 3.901 hours/ns, 71.210 timesteps/s
+99.8% CPU use with 52 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 835.13     | 850.72     | 874.3      |  32.1 | 60.58
+Bond    | 0.013553   | 0.019652   | 0.028177   |   2.2 |  0.00
+Kspace  | 307.63     | 331.55     | 347.32     |  51.9 | 23.61
+Neigh   | 15.833     | 16.484     | 17.358     |  10.1 |  1.17
+Comm    | 37.435     | 38.49      | 40.134     |   9.0 |  2.74
+Output  | 0.074424   | 0.074463   | 0.076165   |   0.1 |  0.01
+Modify  | 134.07     | 148.01     | 161.14     |  50.8 | 10.54
+Other   |            | 18.94      |            |       |  1.35
+
+Nlocal:        576.923 ave         603 max         550 min
+Histogram: 7 4 5 0 11 3 3 9 6 4
+Nghost:        6536.94 ave        6707 max        6272 min
+Histogram: 3 3 0 3 4 4 13 13 5 4
+Neighs:       177909.0 ave      186874 max      169515 min
+Histogram: 7 6 3 1 6 10 7 7 1 4
+
+Total # of neighbors = 9251265
+Ave neighs/atom = 308.37550
+Ave special neighs/atom = 0.0000000
+Neighbor list builds = 3511
+Dangerous builds = 0
+shell                       mkdir thermal_condu
+write_data                  thermal_condu/vac_${vac_ratio}_relaxed.dat
+write_data                  thermal_condu/vac_0_relaxed.dat
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:328)
+  G vector (1/distance) = 0.29729502
+  grid = 40 375 40
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00017564525
+  estimated relative force accuracy = 1.2197887e-05
+  using single precision MKL FFT
+  3d grid and FFT values/proc = 26649 12000
+Total wall time: 0:23:26
