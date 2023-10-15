@@ -1,0 +1,39 @@
+#################
+#
+#This script is used to minimize the energy of the system with a 1/2<111> screw dislocation 
+#using conjugate methods and output the stress tensor for each atom based on the voronoi package
+#By Ziqiang Wang on 07/08/2022 at Shandong University
+#Modified on 10/12/2022 on Jilin university
+#
+##################
+
+
+
+units                 metal
+dimension                 3
+boundary              p p p
+atom_style            atomic
+atom_modify           map   array
+
+read_data             Fe_perfect.lmp
+
+pair_style            eam/alloy
+pair_coeff            * * FeC-Becquart2013.eam.txt Fe      # Fe_Earth_core.eam.fs.txt Fe #Fe_5.eam.fs.txt  Fe
+neighbor              0.3 bin
+neigh_modify          delay 0 every 1 check yes
+
+thermo_style          custom   step   pe ke etotal temp press
+thermo                10000
+dump                  1 all custom 500 dump_minimize.atom.* id type x y z  
+
+min_style             cg
+minimize              1.0e-30 1.0e-30 10000 10000  
+undump                1
+
+dump                  2 all custom 5000 perfect_relaxed.dump id type x y z 
+min_style             cg
+minimize              1.0e-30 1.0e-30 10000 10000 
+undump                2
+
+write_data            perfect_relaxed.dat
+quit
