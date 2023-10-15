@@ -1,0 +1,14 @@
+#PBS -N antisites_0.0025
+#PBS -q jlu
+#PBS -l nodes=1:ppn=52
+#PBS -S /bin/bash
+#PBS -V
+cd $PBS_O_WORKDIR
+source /public/software/intel2020u2/intel2020u2_env.sh
+inputfile=antisites_defect.in
+NP=`cat $PBS_NODEFILE | wc -l`
+NN=`cat $PBS_NODEFILE | sort | uniq | tee /tmp/nodes.$$ | wc -l`
+cat $PBS_NODEFILE > /tmp/nodefile.$$
+mpirun -machinefile /tmp/nodefile.$$ -n $NP /public/software/lammps-29Oct20/src/lmp_intel_cpu_intelmpi < $inputfile |tee log.$$
+rm -rf /tmp/nodefile.$$
+rm -rf /tmp/nodes.$$

@@ -1,0 +1,76 @@
+#-------------------------
+#
+#This script is used to create different concentrations of antisites in uranium dioxide
+#By Ziqiang Wang on 02/03/2022
+#
+#-------------------------
+
+clear
+units                        metal
+dimension                        3
+boundary                     p p p
+atom_style                   full
+atom_modify                  map array
+
+
+read_data                   perfect_relaxed.dat
+
+# Create antisites in the relaxed perfect configuration
+variable                    ratio     equal   0.01
+group                       Th        id   12951  5764  6592  2812  4609 15530  8354  4084  5593  3553  1396  3122 &
+                                           14773  3397  3109 13046  4718 15028  6266 16804  5078  9626 15146 17546 &
+                                           12088 14032  4875 13922 14606  1225  9601 13599 10516   988  8823  7515 &
+                                           13828  5449  8896  9769 10046 15337  1959  8029  7107 15303 10153 13072 &
+                                           7635  1780  8572 14858 11329   565 12615 13672  8931  7562 16564  8593  &
+                                           17930 17020    37 15483  7261  6890  1504  3362 14992 12182 17164 13393 &
+                                           10261 14486 15662  3433   289  3220   664 12700  2728  7347 14055 13322 &
+                                           9904   772  8188 14163  8342 15925
+
+group                       O         id     5   29   53   79  103  179  185  209  259  283  359  365  389  463  &
+                                           539  563  607  643  683  719  727  763  803  839  847  923  967 1043  &
+                                          1075 1087 1171 1195 1267 1295 1319 1387 1425 1499 1507 1531 1607 1627  &
+                                          1651 1737 1747 1771 1877 2015 2039 2047 2131 2155 2243 2267 2287 2363  &
+                                          2387 2407 2483 2517 2527 2563 2639 2647 2735 2759 2767 2843 2865 2887  &
+                                          2963 3043 3083 3119 3163 3203 3331 3359 3465 3487 3539 3563 3642 3716  &
+                                          3798 3824 3900 3944 4112 4188
+
+set              group      Th        type    1
+set              group      O         type    2
+
+set                         type    1      charge   -1.1104
+set                         type    2      charge    2.2208
+
+kspace_style                pppm     1.0e-05
+pair_style                  hybrid/overlay    coul/long   11.0  eam/alloy
+pair_coeff                  * * coul/long
+pair_coeff                  * * eam/alloy CeThUNpPuAmCmO.eam.alloy O Th
+neighbor                    2.0  bin
+neigh_modify                every  1  delay  0  check  yes
+
+# Fully relaxing the defect configuration at 0K
+fix                         box_relax  all  box/relax  aniso  0.0  vmax  0.001
+min_style                   cg
+minimize                    1.0e-30 1.0e-30 10000 10000
+unfix                       box_relax
+reset_timestep              0
+
+variable                    lattx        equal     lx/5
+variable                    latty        equal     ly/60
+variable                    lattz        equal     lz/5
+variable                    latt         equal     (lx/5+ly/60+lz/5)/3.0
+variable                    temp         equal     900.0
+velocity                    all  create   ${temp}  1005  dist  gaussian  rot  yes  mom  yes
+fix                         npt  all  npt  temp  ${temp}  ${temp}   $(100*dt) aniso  0.0  0.0  $(1000*dt)
+
+thermo                      10000
+thermo_style                custom   step dt time atoms temp pe ke press vol v_latt
+timestep                    0.001
+
+shell                       mkdir antisite_${temp}K_${ratio}
+dump                        1  all  custom  50000  ./antisite_${temp}K_${ratio}/dump_relax.atom.* id type x y z
+dump_modify                 1  element  O  Th
+
+run                         100000
+shell                       mkdir thermal_condu
+write_data                  ./thermal_condu/antisite_${ratio}_relaxed.dat
+

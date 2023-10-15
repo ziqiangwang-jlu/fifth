@@ -1,0 +1,100 @@
+#-------------------------
+#
+#This script is used to create different concentrations of antisites in uranium dioxide
+#By Ziqiang Wang on 02/03/2022
+#
+#-------------------------
+
+clear
+units                        metal
+dimension                        3
+boundary                     p p p
+atom_style                   full
+atom_modify                  map array
+
+
+#Firstly create a simple cubic 
+variable                     numx       equal     5
+variable                     numy       equal     60
+variable                     numz       equal     5
+variable                     a         equal     5.5788   #The lattice constant of Th element at 300K
+variable                     b         equal     0.25
+variable                     c         equal     0.75
+lattice                      custom   1   a1  $a 0.0 0.0 a2 0.0 $a 0.0 a3 0.0 0.0 $a &
+                                      basis  $b $b $b basis $c $b $b basis $c $b $c &
+                                      basis  $b $b $c basis $b $c $b basis $c $c $b &
+                                      basis  $c $c $c basis $b $c $c
+region                       sc    block  0  ${numx}  0  ${numy}  0  ${numz}  units  lattice
+create_box                   4     sc
+change_box                   all   triclinic
+create_atoms                 1     region   sc
+
+#Secondly create a fcc center cubic
+lattice                     fcc    $a
+region                      fcc    block   0  ${numx}  0  ${numy}  0  ${numz}  units  lattice
+create_atoms                 2     region   fcc
+
+mass                        1   15.99
+mass                        2   232.038
+mass                        3   15.99
+mass                        4   232.038
+
+#write_data                  fluorite.dat
+variable                    ratio     equal   0.005
+variable                    ntot      equal   ${numx}*${numy}*${numz}*12
+variable                    oxytot    equal   ${ntot}*2/3
+variable                    uratot    equal   ${ntot}*1/3
+
+variable                    antinum   equal   ${ntot}*${ratio}
+variable                    oxyanti   equal   ${antinum}/2
+variable                    uraanti   equal   ${antinum}/2
+variable                    oratio    equal   ${oxyanti}/${oxytot}
+variable                    uratio    equal   ${uraanti}/${uratot}
+
+group                       oxygen    type    1
+group                       uranium   type    2
+set                         group    oxygen   type/ratio   3   ${oratio}   45618
+set                         group    uranium  type/ratio   4   ${uratio}   456874
+
+group                       anti_oxygen     type    3
+group                       anti_uranium    type    4
+
+set                         group   anti_oxygen   type    2    
+set                         group   anti_uranium  type    1
+
+set                         type    1      charge   -1.1104
+set                         type    2      charge    2.2208
+
+kspace_style                pppm     1.0e-05
+pair_style                  hybrid/overlay    coul/long   11.0  eam/alloy
+pair_coeff                  * * coul/long
+pair_coeff                  * * eam/alloy CeThUNpPuAmCmO.eam.alloy O Th O Th
+neighbor                    2.0  bin
+neigh_modify                every  1  delay  0  check  yes
+
+fix                         box_relax  all  box/relax  aniso  0.0  vmax  0.001
+min_style                   cg
+minimize                    1.0e-30 1.0e-30 10000 10000
+unfix                       box_relax
+reset_timestep              0
+
+#variable                    lattx     equal    lx/${numx}
+#variable                    latty     equal    ly/${numy}
+#variable                    lattz     equal    lz/${numz}
+#variable                    latt      equal    (v_lattx+v_latty+v_lattz)/3
+variable                    temp         equal     600.0
+velocity                    all  create   ${temp}  45362  dist  gaussian  rot  yes  mom  yes
+fix                         npt  all  npt  temp  ${temp}  ${temp}   $(100*dt) aniso  0.0  0.0  $(1000*dt)
+
+thermo                      50000
+thermo_style                custom   step dt time atoms temp pe ke press vol
+timestep                    0.001
+
+shell                       mkdir antisite_${temp}K_${ratio}
+dump                        1  all  custom  50000  ./antisite_${temp}K_${ratio}/dump_relax.atom.* id type x y z
+dump_modify                 1  element  O  Th  O  Th
+
+run                         500000
+shell                       mkdir thermal_condu
+write_data                  ./thermal_condu/antisite_${ratio}_relaxed.dat
+

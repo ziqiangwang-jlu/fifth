@@ -1,0 +1,311 @@
+LAMMPS (29 Oct 2020)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:94)
+  using 1 OpenMP thread(s) per MPI task
+#-------------------------
+#
+#This script is used to create different concentrations of antisites in uranium dioxide
+#By Ziqiang Wang on 02/03/2022
+#
+#-------------------------
+
+clear
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (../comm.cpp:94)
+  using 1 OpenMP thread(s) per MPI task
+units                        metal
+dimension                        3
+boundary                     p p p
+atom_style                   full
+atom_modify                  map array
+
+
+#Firstly create a simple cubic
+variable                     numx       equal     5
+variable                     numy       equal     60
+variable                     numz       equal     5
+variable                     a         equal     5.5788   #The lattice constant of Th element at 300K
+variable                     b         equal     0.25
+variable                     c         equal     0.75
+lattice                      custom   1   a1  $a 0.0 0.0 a2 0.0 $a 0.0 a3 0.0 0.0 $a                                       basis  $b $b $b basis $c $b $b basis $c $b $c                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 $a 0.0 a3 0.0 0.0 $a                                       basis  $b $b $b basis $c $b $b basis $c $b $c                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 $a                                       basis  $b $b $b basis $c $b $b basis $c $b $c                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  $b $b $b basis $c $b $b basis $c $b $c                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 $b $b basis $c $b $b basis $c $b $c                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 $b basis $c $b $b basis $c $b $c                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis $c $b $b basis $c $b $c                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 $b $b basis $c $b $c                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 $b basis $c $b $c                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis $c $b $c                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 $b $c                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 $c                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  $b $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 $b $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 $c basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis $b $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis 0.25 $c $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis 0.25 0.75 $b basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis 0.25 0.75 0.25 basis $c $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis 0.25 0.75 0.25 basis 0.75 $c $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis 0.25 0.75 0.25 basis 0.75 0.75 $b                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis 0.25 0.75 0.25 basis 0.75 0.75 0.25                                       basis  $c $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis 0.25 0.75 0.25 basis 0.75 0.75 0.25                                       basis  0.75 $c $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis 0.25 0.75 0.25 basis 0.75 0.75 0.25                                       basis  0.75 0.75 $c basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis 0.25 0.75 0.25 basis 0.75 0.75 0.25                                       basis  0.75 0.75 0.75 basis $b $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis 0.25 0.75 0.25 basis 0.75 0.75 0.25                                       basis  0.75 0.75 0.75 basis 0.25 $c $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis 0.25 0.75 0.25 basis 0.75 0.75 0.25                                       basis  0.75 0.75 0.75 basis 0.25 0.75 $c
+lattice                      custom   1   a1  5.5788 0.0 0.0 a2 0.0 5.5788 0.0 a3 0.0 0.0 5.5788                                       basis  0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.75 0.25 0.75                                       basis  0.25 0.25 0.75 basis 0.25 0.75 0.25 basis 0.75 0.75 0.25                                       basis  0.75 0.75 0.75 basis 0.25 0.75 0.75
+Lattice spacing in x,y,z = 5.5788000 5.5788000 5.5788000
+region                       sc    block  0  ${numx}  0  ${numy}  0  ${numz}  units  lattice
+region                       sc    block  0  5  0  ${numy}  0  ${numz}  units  lattice
+region                       sc    block  0  5  0  60  0  ${numz}  units  lattice
+region                       sc    block  0  5  0  60  0  5  units  lattice
+create_box                   4     sc
+Created orthogonal box = (0.0000000 0.0000000 0.0000000) to (27.894000 334.72800 27.894000)
+  2 by 13 by 2 MPI processor grid
+change_box                   all   triclinic
+Changing box ...
+  triclinic box = (0.0000000 0.0000000 0.0000000) to (27.894000 334.72800 27.894000) with tilt (0.0000000 0.0000000 0.0000000)
+create_atoms                 1     region   sc
+Created 12000 atoms
+  create_atoms CPU = 0.007 seconds
+
+#Secondly create a fcc center cubic
+lattice                     fcc    $a
+lattice                     fcc    5.5788
+Lattice spacing in x,y,z = 5.5788000 5.5788000 5.5788000
+region                      fcc    block   0  ${numx}  0  ${numy}  0  ${numz}  units  lattice
+region                      fcc    block   0  5  0  ${numy}  0  ${numz}  units  lattice
+region                      fcc    block   0  5  0  60  0  ${numz}  units  lattice
+region                      fcc    block   0  5  0  60  0  5  units  lattice
+create_atoms                 2     region   fcc
+Created 6000 atoms
+  create_atoms CPU = 0.002 seconds
+
+mass                        1   15.99
+mass                        2   232.038
+mass                        3   15.99
+mass                        4   232.038
+
+#write_data                  fluorite.dat
+variable                    ratio     equal   0.005
+variable                    ntot      equal   ${numx}*${numy}*${numz}*12
+variable                    ntot      equal   5*${numy}*${numz}*12
+variable                    ntot      equal   5*60*${numz}*12
+variable                    ntot      equal   5*60*5*12
+variable                    oxytot    equal   ${ntot}*2/3
+variable                    oxytot    equal   18000*2/3
+variable                    uratot    equal   ${ntot}*1/3
+variable                    uratot    equal   18000*1/3
+
+variable                    antinum   equal   ${ntot}*${ratio}
+variable                    antinum   equal   18000*${ratio}
+variable                    antinum   equal   18000*0.005
+variable                    oxyanti   equal   ${antinum}/2
+variable                    oxyanti   equal   90/2
+variable                    uraanti   equal   ${antinum}/2
+variable                    uraanti   equal   90/2
+variable                    oratio    equal   ${oxyanti}/${oxytot}
+variable                    oratio    equal   45/${oxytot}
+variable                    oratio    equal   45/12000
+variable                    uratio    equal   ${uraanti}/${uratot}
+variable                    uratio    equal   45/${uratot}
+variable                    uratio    equal   45/6000
+
+group                       oxygen    type    1
+12000 atoms in group oxygen
+group                       uranium   type    2
+6000 atoms in group uranium
+set                         group    oxygen   type/ratio   3   ${oratio}   45618
+set                         group    oxygen   type/ratio   3   0.00375   45618
+Setting atom values ...
+  45 settings made for type/ratio
+set                         group    uranium  type/ratio   4   ${uratio}   456874
+set                         group    uranium  type/ratio   4   0.0075   456874
+Setting atom values ...
+  45 settings made for type/ratio
+
+group                       anti_oxygen     type    3
+45 atoms in group anti_oxygen
+group                       anti_uranium    type    4
+45 atoms in group anti_uranium
+
+set                         group   anti_oxygen   type    2
+Setting atom values ...
+  45 settings made for type
+set                         group   anti_uranium  type    1
+Setting atom values ...
+  45 settings made for type
+
+set                         type    1      charge   -1.1104
+Setting atom values ...
+  12000 settings made for charge
+set                         type    2      charge    2.2208
+Setting atom values ...
+  6000 settings made for charge
+
+kspace_style                pppm     1.0e-05
+pair_style                  hybrid/overlay    coul/long   11.0  eam/alloy
+pair_coeff                  * * coul/long
+pair_coeff                  * * eam/alloy CeThUNpPuAmCmO.eam.alloy O Th O Th
+neighbor                    2.0  bin
+neigh_modify                every  1  delay  0  check  yes
+
+fix                         box_relax  all  box/relax  aniso  0.0  vmax  0.001
+min_style                   cg
+minimize                    1.0e-30 1.0e-30 10000 10000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:328)
+  G vector (1/distance) = 0.29916851
+  grid = 40 240 40
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00015502622
+  estimated relative force accuracy = 1.0765975e-05
+  using single precision MKL FFT
+  3d grid and FFT values/proc = 18225 7600
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 13
+  ghost atom cutoff = 13
+  binsize = 6.5, bins = 5 52 5
+  2 neighbor lists, perpetual/occasional/extra = 2 0 0
+  (1) pair coul/long, perpetual
+      attributes: half, newton on
+      pair build: half/bin/newton/tri
+      stencil: half/bin/3d/newton/tri
+      bin: standard
+  (2) pair eam/alloy, perpetual, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 10.42 | 10.45 | 10.47 Mbytes
+Step Temp E_pair E_mol TotEng Press Volume 
+       0            0   -231588.92            0   -231588.92    19820.881    260443.57 
+     623            0   -235362.08            0   -235362.08     28.76818    263894.89 
+Loop time of 9.20978 on 52 procs for 623 steps with 18000 atoms
+
+99.5% CPU use with 52 MPI tasks x 1 OpenMP threads
+
+Minimization stats:
+  Stopping criterion = linesearch alpha is zero
+  Energy initial, next-to-last, final = 
+     -231588.917151428  -235362.084353346  -235362.084353362
+  Force two-norm initial, final = 5677.1781 31.292485
+  Force max component initial, final = 3614.4358 10.221723
+  Final line search alpha, max atom move = 1.2081061e-11 1.2348926e-10
+  Iterations, force evaluations = 623 779
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 5.0286     | 5.1789     | 5.3207     |   3.2 | 56.23
+Bond    | 7.0025e-05 | 0.00010481 | 0.00019197 |   0.0 |  0.00
+Kspace  | 1.6512     | 1.7953     | 1.9551     |   5.7 | 19.49
+Neigh   | 0.040109   | 0.046094   | 0.050382   |   1.0 |  0.50
+Comm    | 0.18589    | 0.19087    | 0.19678    |   0.6 |  2.07
+Output  | 0          | 0          | 0          |   0.0 |  0.00
+Modify  | 0          | 0          | 0          |   0.0 |  0.00
+Other   |            | 1.999      |            |       | 21.70
+
+Nlocal:        346.154 ave         380 max         304 min
+Histogram: 1 1 6 6 7 7 6 9 7 2
+Nghost:        5626.13 ave        5719 max        5527 min
+Histogram: 7 11 3 2 2 0 1 8 9 9
+Neighs:       111451.0 ave      121831 max       97496 min
+Histogram: 1 1 5 7 7 5 8 10 4 4
+
+Total # of neighbors = 5795457
+Ave neighs/atom = 321.96983
+Ave special neighs/atom = 0.0000000
+Neighbor list builds = 12
+Dangerous builds = 0
+unfix                       box_relax
+reset_timestep              0
+
+variable                    lattx     equal    lx/${numx}
+variable                    lattx     equal    lx/5
+variable                    latty     equal    ly/${numy}
+variable                    latty     equal    ly/60
+variable                    lattz     equal    lz/${numz}
+variable                    lattz     equal    lz/5
+variable                    latt      equal    (v_lattx+v_latty+v_lattz)/3
+variable                    temp         equal     1500.0
+velocity                    all  create   ${temp}  1005  dist  gaussian  rot  yes  mom  yes
+velocity                    all  create   1500  1005  dist  gaussian  rot  yes  mom  yes
+fix                         npt  all  npt  temp  ${temp}  ${temp}   $(100*dt) aniso  0.0  0.0  $(1000*dt)
+fix                         npt  all  npt  temp  1500  ${temp}   $(100*dt) aniso  0.0  0.0  $(1000*dt)
+fix                         npt  all  npt  temp  1500  1500   $(100*dt) aniso  0.0  0.0  $(1000*dt)
+fix                         npt  all  npt  temp  1500  1500   0.10000000000000000555 aniso  0.0  0.0  $(1000*dt)
+fix                         npt  all  npt  temp  1500  1500   0.10000000000000000555 aniso  0.0  0.0  1
+
+thermo                      50000
+thermo_style                custom   step dt time atoms temp pe ke press vol v_latt
+timestep                    0.001
+
+shell                       mkdir antisite_${temp}K_${ratio}
+shell                       mkdir antisite_1500K_${ratio}
+shell                       mkdir antisite_1500K_0.005
+dump                        1  all  custom  50000  ./antisite_${temp}K_${ratio}/dump_relax.atom.* id type x y z
+dump                        1  all  custom  50000  ./antisite_1500K_${ratio}/dump_relax.atom.* id type x y z
+dump                        1  all  custom  50000  ./antisite_1500K_0.005/dump_relax.atom.* id type x y z
+dump_modify                 1  element  O  Th  O  Th
+
+run                         100000
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:328)
+  G vector (1/distance) = 0.29893969
+  grid = 40 240 40
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00015680388
+  estimated relative force accuracy = 1.0889427e-05
+  using single precision MKL FFT
+  3d grid and FFT values/proc = 18225 7600
+Per MPI rank memory allocation (min/avg/max) = 10.56 | 10.59 | 10.61 Mbytes
+Step Dt Time Atoms Temp PotEng KinEng Press Volume v_latt 
+       0        0.001            0    18000         1500   -235362.09      3489.83    14153.461    263894.89    5.6033365 
+   50000        0.001           50    18000    1515.5356   -232605.74    3525.9743    -1334.914    274348.81     5.676369 
+  100000        0.001          100    18000    1499.2365   -232619.34    3488.0536    1208.8953    273934.22    5.6735089 
+Loop time of 939.235 on 52 procs for 100000 steps with 18000 atoms
+
+Performance: 9.199 ns/day, 2.609 hours/ns, 106.470 timesteps/s
+99.8% CPU use with 52 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 547.74     | 556.49     | 570.58     |  21.7 | 59.25
+Bond    | 0.0087179  | 0.014769   | 0.019876   |   2.2 |  0.00
+Kspace  | 196.01     | 210.99     | 220.4      |  37.8 | 22.46
+Neigh   | 12.961     | 13.489     | 14.277     |  10.0 |  1.44
+Comm    | 26.53      | 27.581     | 28.473     |  10.0 |  2.94
+Output  | 0.0088282  | 0.0088401  | 0.0091726  |   0.0 |  0.00
+Modify  | 113.3      | 121        | 126.85     |  27.3 | 12.88
+Other   |            | 9.658      |            |       |  1.03
+
+Nlocal:        346.154 ave         368 max         334 min
+Histogram: 5 12 12 2 5 6 2 4 3 1
+Nghost:        5479.06 ave        5587 max        5329 min
+Histogram: 3 1 0 7 13 5 3 4 10 6
+Neighs:       105944.0 ave      112988 max      101924 min
+Histogram: 6 12 9 5 5 6 2 3 3 1
+
+Total # of neighbors = 5509063
+Ave neighs/atom = 306.05906
+Ave special neighs/atom = 0.0000000
+Neighbor list builds = 3395
+Dangerous builds = 0
+shell                       mkdir thermal_condu
+write_data                  ./thermal_condu/antisite_${ratio}_relaxed.dat
+write_data                  ./thermal_condu/antisite_0.005_relaxed.dat
+System init for write_data ...
+PPPM initialization ...
+  using 12-bit tables for long-range coulomb (../kspace.cpp:328)
+  G vector (1/distance) = 0.29822001
+  grid = 40 240 40
+  stencil order = 5
+  estimated absolute RMS force accuracy = 0.00016280908
+  estimated relative force accuracy = 1.1306465e-05
+  using single precision MKL FFT
+  3d grid and FFT values/proc = 18225 7600
+
+Total wall time: 0:15:49
